@@ -1,14 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-service
+  namespace: mysql
+spec:
+  clusterIP: None
+  selector:
+    app: my-sql-app
+  ports:
+    - name: mysql
+      protocol: TCP
+      port: 3306
+      targetPort: 3306
+# Services in Stateful set are headless services which means:
+# 1. Cluster IP is not assigned to the service
+# 2. Service is used for DNS resolution of the pods in the StatefulSet
+# This service will not get exposed, it is for internal use, as we don't expose our database along with our application, simply like that
+
+
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: mysql-statefulset
   namespace: mysql
 spec:
+  serviceName: mysql-service
+  replicas: 1
   selector:
     matchLabels:
       app: my-sql-app
-  serviceName: mysql-service
-  replicas: 2
   template:
     metadata:
       labels:
@@ -43,3 +64,4 @@ spec:
 # for each Pod 
 
 # For MYSQL or databases - env variables are necessary step
+# there are some extra steps if you need multi-replicas (NOT ADDED YET) -> changing replicas to 1 for now
