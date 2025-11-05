@@ -1,38 +1,41 @@
-# PersistentVolume
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: mongodb-pv
-spec:
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: /chatapp/data
+# # PersistentVolume
+# apiVersion: v1
+# kind: PersistentVolume
+# metadata:
+#   name: mongodb-pv
+# spec:
+#   capacity:
+#     storage: 1Gi
+#   accessModes:
+#     - ReadWriteOnce
+#   hostPath:
+#     path: /chatapp/data
+
+# ---
+# # PersistentVolumeClaim
+# apiVersion: v1
+# kind: PersistentVolumeClaim
+# metadata:
+#   name: mongodb-pvc
+#   namespace: chat-app
+# spec:
+#   resources:
+#     requests:
+#       storage: 1Gi
+#   accessModes:
+#     - ReadWriteOnce
+
+# we don't need pv and pvc.yml if we are using statefulsets as they have their own volumeclaimtemplates
 
 ---
-# PersistentVolumeClaim
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongodb-pvc
-  namespace: chat-app
-spec:
-  resources:
-    requests:
-      storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-
----
-# Deployment Database - chatpp-databse port 27017 mongodb
+# StatefulSet for DB - chatpp-databse port 27017 mongodb
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: chatpp-database
+  name: chatpp-database-statefulset
   namespace: chat-app
 spec:
+  serviceName: database
   selector:
     matchLabels:
       app: database
@@ -41,13 +44,11 @@ spec:
       labels:
         app: database
     spec:
-      volumes:
-        - name: db-data
-          persistentVolumeClaim:
-            claimName: mongodb-pvc
       containers:
         - name: chatapp-mongodb-cont
           image: mongo:latest
+          ports:
+            - containerPort: 27017
           env:
             - name: MONGO_INITDB_ROOT_USERNAME
               value: mongoadmin
@@ -63,6 +64,14 @@ spec:
             limits:
               memory: "2Gi"
               cpu: "1000m"
+  volumeClaimTemplates:
+        - metadata:
+            name: db-data
+          spec:
+            accessModes: ["ReadWriteOnce"]
+            resources:
+              requests:
+                storage: 1Gi
 
 ---
 # Headless Service database
@@ -87,3 +96,4 @@ spec:
 # use dbname <- name of the database
 # show collections -> messages, users (dbname db collects all the msg and user info)
 # db.messages.find().pretty()  <- to see all messages in pretty format (similarly for users)
+
