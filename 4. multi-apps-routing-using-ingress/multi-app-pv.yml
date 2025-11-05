@@ -1,0 +1,32 @@
+# pv1.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-python
+  namespace: multi-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  hostPath:
+    path: /multi-app/data/python
+
+---
+# pv2.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-notes
+  namespace: multi-app
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  hostPath:
+    path: /multi-app/data/notes

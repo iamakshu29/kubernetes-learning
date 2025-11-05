@@ -1,0 +1,94 @@
+# secrets 
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+  namespace: chat-app
+type: Opaque
+data:
+  jwt: ZXlKaGJHY2lPaUpJVXpJMU5pSjkuZXlKU2IyeGxJam9pUVdSdGFXNGlMQ0pKYzNOMVpYSWlPaUpKYzNOMVpYSWlMQ0pWYzJWeWJtRnRaU0k2SWtwaGRtRkpibFZ6WlNJc0ltVjRjQ0k2TVRjek5EUXpPREEyTml3aWFXRjBJam94TnpNME5ETTRNRFkyZlEuY0t6NXYzNm9yZ05HMlNIYTVKRHZwOU5ENXA2SUJKeTJKS1RtOGpQOUdkUQ==
+
+
+---
+# Deployment Backend - chatpp-backend port 5001
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatpp-backend-deployment
+  namespace: chat-app
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: chatpp-backend-cont
+          image: iamakshu/chatapp-backend
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "5001"
+            - name: MONGODB_URI
+              value: "mongodb://mongoadmin:secret@database:27017/dbname?authSource=admin"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: mysecret
+                  key: jwt
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+# Service backend
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: chat-app
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 5001
+      targetPort: 5001
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: chat-app-hpa-backend
+  namespace: chat-app
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: chat-app-backend
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+
+# IMPORTANT NOTES: deployment.yml
+
+# mongodb://mongoadmin:secret@database:27017/dbname?authSource=admin
+# protocol://username:password@k8-db-service-name:port/databasename?authSource=admin
+
+# database is a hostname here
+# like we normally do ip:port -> instead of this we do hostname:port why?...as ip_address can change but hostname will remain same
+# why we use k8-db-service-name? -> as service will point to the pod running mongodb
+# how? -> when we create a service it automatically creates a DNS entry in cluster DNS
+# so when we use k8-db-service-name it will be resolved by cluster DNS to the ip address of the pod running mongodb.

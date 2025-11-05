@@ -1,0 +1,25 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: apache-vpa
+  namespace: apache
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: apache-deployment
+  updatePolicy:
+    updateMode: "Auto" # Other options: "Off", "Initial", "Recreate"
+  resourcePolicy: # Optional; sets limits for what VPA can change
+    containerPolicies:
+      - containerName: "myapp" # To Apply to all containers in the pod, use "*"
+        minAllowed:
+          cpu: 100m
+          memory: 100Mi
+        maxAllowed:
+          cpu: 2
+          memory: 4Gi
+        controlledResources: ["cpu", "memory"]
+
+# optional attribute --> resourcePolicy:
+# if we stop till updateMode, VPA can freely adjust CPU/memory requests for deployment we gave as, it does not have any min or max.

@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: notes-app
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mypv
+  namespace: notes-app
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-storage
+  hostPath:
+    path: /notes/data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mypvc
+  namespace: notes-app
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-notes-app
+  namespace: notes-app
+  labels:
+    app: notes-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notes-app
+  template:
+    metadata:
+      labels:
+        app: notes-app
+    spec:
+      containers:
+      - name: k8-notes-app
+        image: iamakshu/notes-app-k8s
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+        volumeMounts:
+          - name: notes-app-data
+            mountPath: /app/backend/staticfiles/
+      volumes:
+        - name: notes-app-data
+          persistentVolumeClaim:
+            claimName: mypvc
+
+# give error in events in kubectl describe, only if they are not working fine
+# for this example, it gave error in readinessProbe as we don't have the clusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-notes-app-service
+  namespace: notes-app
+spec:
+  selector:
+    app: notes-app
+  ports:
+  - port: 90
+    targetPort: 8000

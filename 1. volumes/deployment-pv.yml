@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-pvc-app
+  namespace: practice-k8
+  labels:
+    app: my-app-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp-1
+  template:
+    metadata:
+      labels:
+        app: myapp-1
+    spec:
+      containers:
+        - name: myapp
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: mylocalpvc
+              mountPath: /var/www/html
+      volumes:
+        - name: mylocalpvc
+          persistentVolumeClaim:
+            claimName: mypvc

@@ -1,0 +1,23 @@
+Init and SideCar Container :
+Init Container:
+- Init containers are specialized containers that run before app containers in a Pod.
+- They are used to perform initialization tasks such as setting up the environment, downloading dependencies, or performing configuration tasks.
+- Init containers run to completion before the main application containers start.
+- Each init container must complete successfully before the next one starts.
+- If an init container fails, Kubernetes will restart the Pod until the init container succeeds.
+Sidecar Container:
+- Sidecar containers are auxiliary containers that run alongside the main application container in a Pod.
+- They are used to provide additional functionality such as logging, monitoring, or proxying.
+- Sidecar containers run concurrently with the main application container.
+- They share the same network namespace and storage volumes as the main container, allowing them to interact closely.
+- Sidecar containers can be restarted independently of the main application container.
+Use Cases:
+- Init containers are commonly used for tasks like database migrations, configuration setup, or fetching secrets before the main application starts.
+- Sidecar containers are often used for logging agents, monitoring tools, or service proxies that enhance the functionality of the main application.
+Benefits:
+- Init containers help ensure that the application environment is correctly set up before the main application runs, improving reliability.
+- Sidecar containers allow for modular design, enabling developers to add or update auxiliary functionalities without modifying the main application container.
+- Both init and sidecar containers enhance the flexibility and maintainability of applications deployed in Kubernetes.
+Examples:
+- An init container might run a script to set up database schemas before the main application starts.
+- A sidecar container might run a logging agent that collects and forwards logs from the main application container to a centralized logging system.

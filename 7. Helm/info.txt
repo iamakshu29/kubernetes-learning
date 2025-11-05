@@ -1,0 +1,40 @@
+Helm is a package manager, which helps to
+a. install
+b. update
+c. uninstall
+d. package the application as helm charts, so that anyone outside of org can use the helm command to install the application.
+Helm uses a packaging format called charts. A chart is a collection of files that describe a related set of Kubernetes resources.
+
+Helm has two main components:
+1. Helm Client: The command-line tool that users interact with to create, install, and manage Helm charts.
+2. Helm Server (Tiller): The server-side component that runs inside the Kubernetes cluster and manages the installation and management of charts. (Note: Tiller has been removed in Helm 3 for security reasons, and Helm now interacts directly with the Kubernetes API server.)
+
+- Helm Charts: A Helm chart is a package that contains all the necessary information to deploy an application or service on a Kubernetes cluster. Charts can be stored in chart repositories, which are similar to package repositories in other package managers. like apt, npm
+
+- Helm Repositories: A Helm repository is a collection of Helm charts that can be shared and distributed. Users can add repositories to their Helm client to access and install charts from those repositories.
+Examples of some repos are :- 
+1. bitnami (important repo to get the most commonly used package)
+
+Helm Commands:
+- helm install: Installs a Helm chart on a Kubernetes cluster.
+- helm uninstall: Uninstalls a Helm chart on a Kubernetes cluster.
+- helm upgrade: Upgrades an existing Helm release to a new version of a chart.
+- helm rollback: Rolls back a Helm release to a previous version.
+- helm list: Lists all the Helm releases installed on the cluster.
+- helm repo add: Adds a new Helm repository to the client.
+- helm repo list: Lists all the Helm repositories added to the client.
+
+- helm repo update: Updates the local cache of Helm repositories. (Always do this)
+- helm package: Packages a Helm chart into a chart archive file.
+- helm create: Creates a new Helm chart with a predefined directory structure.
+- helm lint: Validates a Helm chart for correctness and best practices.
+Helm Values: Helm charts can be customized using values files, which allow users to override default configuration settings for the chart. This enables users to tailor the deployment to their specific needs without modifying the chart itself.
+Helm Templates: Helm uses Go templating to define Kubernetes resources in a chart. This allows for dynamic generation of resource definitions based on user-provided values and conditions.
+Overall, Helm simplifies the management of Kubernetes applications by providing a consistent and reusable way to package, deploy, and manage resources on a cluster.
+
+For more information, visit the official Helm documentation: https://helm.sh/docs/
+
+To Install helm on windows using choco.
+>> choco install Kubernetes-helm
+To verify the installation
+>> helm version

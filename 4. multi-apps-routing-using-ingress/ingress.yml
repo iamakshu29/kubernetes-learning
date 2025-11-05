@@ -1,0 +1,32 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myingress
+  namespace: multi-app
+  labels:
+    app.kubernetes.io/name: myingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/python"
+            backend:
+              service:
+                name: python-app-service
+                port:
+                  number: 90
+          - pathType: Prefix
+            path: "/notes"
+            backend:
+              service:
+                name: notes-app-service
+                port:
+                  number: 91
+# ingress is global service so we use the ingress-nginx-controller for port-forwarding not the individual services, when using routing on same ip with multi-path
+# kubectl port-forward service/ingress-nginx-controller -n ingress-nginx 90:80 --address=0.0.0.0
+
+# port:
+#   number: 90 (should be service port, not the container port)

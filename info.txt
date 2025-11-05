@@ -1,0 +1,113 @@
+>>>>>>>>>>>>>> About volumes
+Explaining 
+
+volumeMounts:
+  - name: backup-volume
+    mountPath: /backups
+
+volumes:
+  - name: data-volume
+    hostPath:
+      path: /demo-data
+      type: DirectoryOrCreate
+
+volumes section is act as source path
+used to define the actual storage resources that can be mounted into containers. In this example, a hostPath volume is created that points to the /demo-data directory on the host machine. If the directory does not exist, it will be created.
+
+volumeMounts section is destination path
+used within a container specification to specify where the defined volumes should be mounted inside the container's filesystem. In this example, a volume named backup-volume is mounted to the /backups path inside the container. This allows the container to read from and write to the /backups directory, which is backed by the specified volume.
+
+the name should be same as it acts like a key which Links the volume definition to its mount
+
+volumes: Defines what storage to use and where it comes from (inside the node)
+name: Links the volume definition to its mount
+volumeMounts: Defines where inside the container that volume appears (inside the contaienr)
+hostPath: Directly maps a path on the node to the container
+
+path can be different but name should be same, as it connect source to destination
+
+
+>>>>>>>>>>>>>> About Ports - deployment/replica/stateful/daemon/pods , services, ingress and port-forwarding
+Ports are used to enable communication between different components within a Kubernetes cluster and between the cluster and external clients. Here are the key concepts related to ports in Kubernetes:
+1. Container Ports: These are the ports that are exposed by individual containers within a Pod. They define where the application inside the container listens for incoming traffic.
+2. Pod Ports: Pods can have multiple containers, each with its own set of container ports. The Pod itself does not have a separate port; instead, it relies on the container ports for communication.
+3. Service Ports: Services in Kubernetes provide a stable endpoint for accessing Pods. They define a set of ports that map to the container ports of the Pods they target. Services can expose ports to the outside world or within the cluster.
+4. Ingress Ports: Ingress resources manage external access to services within a cluster, typically HTTP/HTTPS traffic. Ingress controllers listen on specific ports (usually 80 for HTTP and 443 for HTTPS) and route incoming requests to the appropriate services based on defined rules.
+5. Port Forwarding: Port forwarding allows you to access a specific port on a Pod or Service from your local machine. This is useful for debugging or accessing applications running inside the cluster without exposing them externally.
+When working with multiple applications and routing using Ingress in Kubernetes, it's important to configure the Ingress resource correctly to ensure that traffic is routed to the appropriate services based on the defined paths. Here are some key points to consider:
+- Ingress Controller: Ensure that you have an Ingress controller (like NGINX, Traefik, etc.) deployed in your cluster to handle Ingress resources.
+- Path-Based Routing: Define rules in the Ingress resource that specify how to route traffic based on URL paths. Each path should map to a specific service and port.
+- Annotations: Use annotations in the Ingress resource to configure specific behaviors, such as rewriting paths or enabling SSL termination.
+- Port Forwarding for Ingress: When using Ingress for routing multiple applications, you typically forward ports on the Ingress controller service rather than individual services. This allows you to access all applications through a single entry point.
+- Example Port Forwarding Command:
+  kubectl port-forward service/ingress-nginx-controller -n ingress-nginx 90:80 --address=
+
+1. Deployment (containerPort)
+
+containers:
+- name: app
+  image: myapp
+  ports:
+  - containerPort: 5000
+
+Explaination
+- containerPort is only documentation for humans and some tools.
+- It tells Kubernetes what port the container listens on inside the pod, but it does not expose it outside the pod by itself.
+- Your app inside the pod actually runs on this port (e.g., Flask on port 5000).
+
+2. Service
+
+spec:
+  ports:
+  - port: 90          # The port exposed *inside the cluster*
+    targetPort: 5000  # The port on the pod (matches containerPort)
+    nodePort: 30090   # Only for NodePort type services
+
+Explanation:
+port — the port on the Service that other Kubernetes resources (or Ingress) will use to talk to it.
+targetPort — the port on the Pod where traffic is actually sent (should match your app’s port, e.g., 5000).
+nodePort — only if type: NodePort; opens the service on every node’s IP for external access.
+
+So:
+Cluster IP (port) = 90
+Pod (targetPort) = 5000
+Traffic flow:
+Client → Service:90 → Pod:5000
+
+3. kubectl port-forward
+kubectl port-forward service/my-service -n <namespace> 92:90 --address=0.0.0.0
+
+Mapping:
+localPort:servicePort
+92 = local port on your machine (can be any)
+90 = Service’s port (not the pod port)
+So requests to http://localhost:92 get forwarded to Service:90, which then routes to the Pod’s targetPort:5000.
+localhost:92 -> servicePort:90 -> podPort:5000
+
+4. Ingress
+Ingress is a higher-level routing rule — it does not connect directly to the Pod or containerPort.
+The Ingress routes HTTP(S) traffic to a Service, and that service then routes to the Pod.
+
+Example:
+spec:
+  rules:
+  - host: myapp.local
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: my-service
+            port:
+              number: 90   # This must match the Service's `port`, not the containerPort
+Key rule:
+Ingress always routes to the Service port (the one under port: in service.yml), not to the container’s port.
+
+5. Ingress Controller Port-Forward
+If you’re testing locally (e.g., with ingress-nginx), you can forward:
+kubectl port-forward service/ingress-nginx-controller -n ingress-nginx 90:80 --address=0.0.0.0
+
+Mapping:
+90 — local port on your machine
+80 — port exposed by the ingress-nginx-controller Service (the standard HTTP port)
+Then, any request to http://localhost:90 goes: localhost:90 → ingress-nginx-controller:80 → Ingress rule → my-service:90 → my-pod:5000

@@ -1,0 +1,38 @@
+>> helm create payments
+- helm create: Creates a new Helm chart with a predefined directory structure.
+
+This command generates a new directory called "payments" with the following structure:
+payments/
+  Chart.yaml          # Information about the chart
+  values.yaml        # Default configuration values for the chart
+  charts/            # Directory to store dependent charts
+  templates/         # Directory for Kubernetes resource templates
+  .helmignore        # Patterns to ignore when packaging the chart
+
+You can navigate into the "payments" directory and customize the chart by modifying the files and templates as needed.
+>> cd payments
+
+>> helm lint .
+- helm lint: Validates a Helm chart for correctness and best practices.
+This command checks the "payments" chart for any issues or best practice violations and provides feedback on how to improve the chart.
+
+>> helm package .
+- helm package: Packages a Helm chart into a chart archive file.
+This command creates a packaged chart file (a .tgz file) in the current directory, which can be shared or uploaded to a Helm repository.
+
+>> helm install my-payments ./payments-0.1.0.tgz
+- helm install: Installs a Helm chart on a Kubernetes cluster.
+This command installs the "payments" chart from the packaged file and names the release "my-payments". The application defined in the chart will be deployed to the Kubernetes cluster.
+
+>> helm list
+- helm list: Lists all the Helm releases installed on the cluster.
+This command displays a list of all Helm releases currently installed in the Kubernetes cluster, including their names, namespaces, and statuses.
+This sequence of commands demonstrates the creation, validation, packaging, installation, and listing of a Helm chart for a hypothetical "payments" application.
+
+Helm Commands:
+- helm create: Creates a new Helm chart with a predefined directory structure.
+- helm lint: Validates a Helm chart for correctness and best practices.
+- helm package: Packages a Helm chart into a chart archive file.
+- helm install: Installs a Helm chart on a Kubernetes cluster.
+- helm list: Lists all the Helm releases installed on the cluster.
+Helm simplifies the management of Kubernetes applications by providing a consistent and reusable way to package, deploy, and manage resources on a cluster.

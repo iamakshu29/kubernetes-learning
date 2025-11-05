@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: my-nginx-job
+  namespace: practice-k8
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    spec:
+      containers:
+        - name: batch-container
+          image: busybox:latest
+          command: ["sh", "-c", "echo hello akshat && sleep 10"]
+      restartPolicy: Never
+# How many time you want the job to complete the task, let's say 1 time
+# completions: 1
+
+# How many pods you want to run in paralled to complete the job, let's say 1 time
+# parallelism: 1
+
+# to see the output of job you run
+# kubectl logs <podname> -n <namespace>
+# kubectl logs pod/my-nginx-job-6hjmw -n practice-k8
+

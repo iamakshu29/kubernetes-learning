@@ -1,0 +1,66 @@
+kubectl get  :-- all pods in all namespace
+kubectl get ns :--  get all namespace
+kubectl get pod/<podname> -n <namespace> :-- specific pod / or any resource in particular namespace
+kubectl get pods -n <namespace> :-- all pods / or any resource in particular namespace
+kubectl delete pod/<podname> -n <namespace> :-- delete a pod / or any resource in particular namespace
+kubectl delete ns/<namespace> :--  delete a namespace
+kubectl create -f <filename.yml> :-- to create a resource from a file.
+kubectl apply -f <filename.yml> :-- to create and update a resource from a file.
+IMP kubectl describe <resourcetype>/<resourcename> -n <namespace> :-- provides a detailed, human-readable view of a Kubernetes resource — including its configuration, current status, events, and relationships with other objects.
+IMP kubectl exec -it <podname> -n <namespace> -- bash :-- will start an interactive shell session inside the pod.(bash/sh)
+
+--------------------------------------------------------------------------------------------------------
+
+To Scale up or Down - after creating deployment/replicaset/daemonset
+kubectl scale <resourcetype> <resourcename> -n <namespace> --replicas=3/2/1/4
+kubectl scale deployment nginx-deployment -n practice-k8 --replicas=2
+
+--------------------------------------------------------------------------------------------------------
+
+kubectl logs <podname> -n <namespace> :-- To see the output of job you ran
+
+--------------------------------------------------------------------------------------------------------
+
+Port-forward 
+through service
+kubectl port-forward service/<srevice-name> -n <namespace> 90:80 --address=0.0.0.0
+
+through ingress
+kubectl port-forward service/ingress-nginx-controller -n ingress-nginx 90:80 --address=0.0.0.0
+
+--------------------------------------------------------------------------------------------------------
+
+Taint and Tolerance
+kubectl get nodes - to get all the nodes (master + worker)
+
+to Taint command is
+kubectl taint nodes <node-name> key=value:NoSchedule
+>> kubectl taint node worker-node-1 prod=true:NoSchedule
+--- key=value helps to identify the taint easily when you have multiple taints on a node.
+
+to Remove Taint command is
+kubectl taint nodes <node-name> key=value:NoSchedule-
+>> kubectl taint node worker-node-1 prod=true:NoSchedule-
+
+If all the worker-nodes are tainted and we create or apply the pod, then it will be in pending state.
+
+Tolerance - Run the pods even on Tainted nodes
+add this in spec: 
+
+tolerations:
+  - key: "prod"
+    operator: "Equal"
+    value: "true"
+    effect: "NoSchedule"
+
+--------------------------------------------------------------------------------------------------------
+
+To enable a metric server on minikube, command is
+>> minikube addons enable metrics-server
+
+---------------------------------------------------------------------------------------------------------
+Init or Sidecar Container
+to check a particular container as when we use Init or Sidecar container, logs command shows logs of one container only. (default one can be init or main)
+To get the logs of specific container either init, main or sidecar. Command :
+kubectl logs <podname> -c <containername> -n <namespace>
+>> kubectl logs init-test -c init-cont -n default

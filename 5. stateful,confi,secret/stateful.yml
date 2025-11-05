@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-statefulset
+  namespace: mysql
+spec:
+  selector:
+    matchLabels:
+      app: my-sql-app
+  serviceName: mysql-service
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: my-sql-app
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+            - name: MYSQL_DATABASE
+              value: devops
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 1Gi
+
+# We can notice that Statefulset binds together
+# 1. A Headless service for DNS resolution
+# 2. A Persistent volume claim template for persistent storage
+# 3. A Pod template for the application container (common for others too)
+# for each Pod 
+
+# For MYSQL or databases - env variables are necessary step

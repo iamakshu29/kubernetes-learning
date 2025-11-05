@@ -1,0 +1,13 @@
+Units
+- Mi -> Mebibytes ( binary megabytes)
+1 mi = approx 1.05 MB 
+- Gi -> Gibibytes ( binary gigabytes)
+1 Gi = approx 1.07 GB
+- m -> millicores (1/1000 of a core)
+1000m = 1 CPU core
+250m = 0.25 CPU core
+
+
+- In HPA
+averageUtilization: 50 (target CPU utilization percentage across all pods)
+50% of CPU usage across all pods will trigger scaling actions

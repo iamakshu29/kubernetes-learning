@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: my-cron-job
+  namespace: practice-k8
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup-container
+              image: busybox
+              command:
+                - /bin/sh
+                - -c
+                - >
+                  echo "backup started on $(date)";
+                  mkdir -p /backups;
+                  mkdir -p /demo-data;
+                  cp -r /demo-data/* /backups;
+                  echo "backup completed";
+              volumeMounts:
+                - name: backup-volume
+                  mountPath: /backups
+                - name: data-volume
+                  mountPath: /demo-data
+          restartPolicy: OnFailure
+          volumes:
+            - name: data-volume
+              hostPath:
+                path: /demo-data
+                type: DirectoryOrCreate
+            - name: backup-volume
+              hostPath:
+                path: /backups
+                type: DirectoryOrCreate
+# we create cron-job of backup up data with some commands
+# we also use volumeMounts (different concept from cron-job)
+# it will store those two folder defined in mountPath
+# also we need to defined volumes
+# volumes:
+# - name: data-volum
+#   hostPath:
+#     path: /demo-data
+#     type: DirectoryOrCreate (it will create the dir, if dir not found for storing data)
+
+# Let say we want to add completions and parallelism in cron-job tooo -> this is how we add
+#  schedule: "*/5 * * * *"
+#   jobTemplate:
+#     spec:
+#       completions: 3
+#       parallelism: 2
+#       backoffLimit: 1
+#       template:
+
+# if completion = 3 and cron job scheduled for 1 minute ie it will run 3 successful job every minute.

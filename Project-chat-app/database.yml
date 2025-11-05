@@ -1,0 +1,89 @@
+# PersistentVolume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongodb-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /chatapp/data
+
+---
+# PersistentVolumeClaim
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-pvc
+  namespace: chat-app
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+
+---
+# Deployment Database - chatpp-databse port 27017 mongodb
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatpp-database
+  namespace: chat-app
+spec:
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+      containers:
+        - name: chatapp-mongodb-cont
+          image: mongo:latest
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              value: mongoadmin
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              value: secret
+          volumeMounts:
+            - name: db-data
+              mountPath: /var/lib/mongodb
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+
+---
+# Headless Service database
+apiVersion: v1
+kind: Service
+metadata:
+  name: database
+  namespace: chat-app
+spec:
+  clusterIP: None
+  selector:
+    app: database
+  ports:
+    - port: 27017
+      targetPort: 27017
+
+# to connect to mongodb inside the cluster
+# commands :
+# kubectl exec -it <pod-name> -n <namespace> -- bash
+# mongosh -u mongoadmin -p secret --authenticationDatabase admin
+# show databases
+# use dbname <- name of the database
+# show collections -> messages, users (dbname db collects all the msg and user info)
+# db.messages.find().pretty()  <- to see all messages in pretty format (similarly for users)
