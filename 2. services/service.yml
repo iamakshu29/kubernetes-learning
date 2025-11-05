@@ -30,6 +30,6 @@ spec:
 
 # >> kubectl get nodes -o wide or minikube ip ( to get NodeIP <- internal one for minikube)
 
-# But it will not work as dockerdesktop run on WSL2 backend so we need to use command below 
-# minikube service frontend -n chat-app
+# But it will not work as dockerdesktop run on WSL2 backend so we need to use command below
+# minikube service <service-name> -n <namespace>
 # it will createa a tunnel and open the service in browser
