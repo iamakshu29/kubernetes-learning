@@ -1,0 +1,25 @@
+RBAC has two parts
+
+Service Accounts and Roles/ClusterRoles
+Service Accounts are special accounts that are used by applications running in pods to interact with the Kubernetes API. 
+Each pod can be associated with a Service Account, which provides it with a set of credentials.
+
+Roles and ClusterRoles define a set of permissions that can be granted to Service Accounts. 
+Roles are namespaced, meaning they apply to a specific namespace, while ClusterRoles are cluster-wide and can be used across all namespaces.
+i.e.
+If we want to give access at Namespace level we use Role and RoleBinding
+If we want to give access at Cluster level we use ClusterRole and ClusterRoleBinding.
+
+RoleBindings and ClusterRoleBindings
+They are used to bind Roles and ClusterRoles to Service Accounts.
+A RoleBinding grants the permissions defined in a Role to a specific Service Account within a namespace, while a ClusterRoleBinding grants the permissions defined in a ClusterRole to a Service Account across all namespaces.
+
+RBAC Policies
+RBAC policies are defined using YAML manifests that specify the Roles, ClusterRoles, RoleBindings, and ClusterRoleBindings. These manifests can be applied to the Kubernetes cluster using the kubectl command-line tool.
+
+In tutorial we will create roles and rolebinding at namespace level only, not at cluster level.
+
+
+Flow is like
+ServiceAccount -> Role -> RoleBinding 
+Create manifests for Role and RoleBinding and apply them using kubectl.

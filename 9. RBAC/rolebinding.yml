@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "notes-user" to read pods in the "notes-app-namespace" namespace.
+# You need to already have a Role named "pod-reader" in that namespace.
+kind: RoleBinding
+metadata:
+  name: notes-app-rolebinding
+  namespace: notes-app-namespace
+subjects:
+# You can specify more than one "subject"
+- kind: ServiceAccount # could be User, Group, or ServiceAccount
+  name: notes-app-service-account # name of service account
+  namespace: notes-app-namespace # only required for ServiceAccount
+  # apiGroup: rbac.authorization.k8s.io  # apiGroup for user, not required for ServiceAccount
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role # this must be Role or ClusterRole
+  name: notes-app-manager # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io

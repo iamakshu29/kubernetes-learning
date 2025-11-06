@@ -1,0 +1,41 @@
+To Check current user info use the command:
+>> kubectl auth whoami
+
+To Check if the current user can perform an action use the command:
+kubectl auth can-i <verb> <resource> --namespace=<namespace>
+kubectl auth can-i get pods --namespace=dev
+
+To get the apiGroups
+>> kubectl api-resources
+
+1. Create a Service Account
+in example, we create a service account named notes-app-service-account in the namespace notes-app-namespace.
+
+Now we check, do we have auth 
+>> kubectl auth can-i get pods --as=notes-app-service-account --namespace=notes-app-namespace
+it will return "no" because we have not given any permission to this service account yet.
+
+2. Create Role
+Create a Role that defines the permissions for the Service Account.
+In example, we create a role named notes-app-role that allows reading pods in the namespace notes-app-namespace.
+
+3. Create RoleBinding
+Create a RoleBinding that binds the Role to the Service Account.
+In example, we create a RoleBinding named notes-app-rolebinding that binds the notes-app-role to the notes-app-service-account in the namespace notes-app-namespace.
+
+Now we check again, do we have auth
+>> kubectl auth can-i get pods --as=notes-app-service-account --namespace=notes-app-namespace
+it will return "yes" because we have given read permission to this service account via Role and RoleBinding.
+
+To check
+>> kubectl get role -n notes-app-namespace
+>> kubectl get rolebinding -n notes-app-namespace
+>> kubectl get sa notes-app-service-account -n notes-app-namespace
+
+Auth Command for Service Account:
+>> kubectl auth can-i <verbs> <resources> --as=system:serviceaccount:notes-app-namespace:notes-app-service-account -n <namespace>
+>> kubectl auth can-i get pods --as=system:serviceaccount:<namespace>:<serviceaccount-name> -n notes-app-namespace
+
+Auth Command for User: (if kind: User in RoleBinding)
+>> kubectl auth can-i <verbs> <resources> --as=<user-name> -n <namespace>
+>> kubectl auth can-i create pods --as=notes-app-service-account -n notes-app-namespace

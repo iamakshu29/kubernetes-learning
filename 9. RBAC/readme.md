@@ -1,0 +1,1 @@
+Used 3. notes-app-proj as an example to understand RBAC

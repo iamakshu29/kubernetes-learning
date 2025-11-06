@@ -1,0 +1,26 @@
+# A Role always sets permissions within a particular namespace;
+# when you create a Role, you have to specify the namespace it belongs in.
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: notes-app-manager
+  namespace: notes-app-namespace
+rules: # can have many rules
+# core API group
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods","services"]
+  verbs: ["get", "list", "create"]
+# apps API group (for Deployments)
+- apiGroups: ["apps"]
+  resources: ["deployments"]
+  verbs: ["get", "list", "create"]
+
+# examples of apiGroups like below
+# "" indicates the core API group
+# apps/v1 -> "apps" <- this is the API group for deployments, statefulsets, daemonsets
+# rbac.authorization.k8s.io/v1 -> "rbac.authorization.k8s.io" <- this is the API group for RBAC resources
+
+# In conclusion 
+# what this manifest does it create a Role named notes-app-manager in the namespace -> notes-app-namespace 
+# that allows get, watch, and list permissions on pods, services, and deployments within that namespace.
