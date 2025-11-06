@@ -1,0 +1,47 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: devopsbatch-resource.devops.example.com # name+group
+spec:
+  group: devops.example.com
+  names:
+    plural: devopsbatches
+    singular: devopsbatch
+    kind: devopsbatch
+    shortNames:
+      - dbatch
+      - dvpb
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                batchName:
+                  type: string
+                  description: Name of the DevOps batch job
+                batchSize:
+                  type: integer
+                  description: Size of the DevOps batch job
+                schedule:
+                  type: string
+                  description: Schedule for the DevOps batch job
+
+---
+apiVersion: devops.example.com/v1
+kind: devopsbatch
+metadata:
+  name: my-batch-12
+  namespace: default
+spec:
+  batchName: "Jenkins Build Batch"
+  batchSize: 10
+  schedule: "3 times a week"
+
+# this is how we can create a custom resource of the above defined CRD
