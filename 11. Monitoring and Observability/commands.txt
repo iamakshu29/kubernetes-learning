@@ -1,0 +1,16 @@
+Create namespace monitoring
+>> kubectl create namespace monitoring
+
+Adding Prometheus repo for Helm
+>> helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+# Install Prometheus-Stack using Helm 
+>> helm install prometheus-stack prometheus-community/kube-prometheus-stack -n monitoring
+ - you can change it to nodePort using --set service.type=NodePort if needed during installation
+
+# To access Prometheus server 
+>> kubectl port-forward svc/prometheus-stack-kube-prom-prometheus 81:9090 -n monitoring --address=0.0.0.0 &
+
+# TO access Grafana server 
+>> kubectl port-forward svc/prometheus-stack-grafana 80:80 -n monitoring --address=0.0.0.0 &
+
