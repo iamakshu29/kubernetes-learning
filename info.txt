@@ -26,6 +26,15 @@ hostPath: Directly maps a path on the node to the container
 
 path can be different but name should be same, as it connect source to destination
 
+the hostPath you add will create inside the minikube VM not in your local machine which is inside the docker
+check it by following steps
+# minikube ssh
+# ls /
+# you will find a folder you add in hostPath path section or you can pre-create it and edit as per your need
+For example :- for nginx web server if you want to override default html page
+create a folder as 2132_clean_work -> sudo vi index.html -> add some content
+now when you mount the path with nginx /usr/share/nginx/html -> it will reflect and override all previous file.
+
 
 >>>>>>>>>>>>>> About Ports - deployment/replica/stateful/daemon/pods , services, ingress and port-forwarding
 Ports are used to enable communication between different components within a Kubernetes cluster and between the cluster and external clients. Here are the key concepts related to ports in Kubernetes:
