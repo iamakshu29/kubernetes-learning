@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: secure-app
+spec:
+  podSelector:
+    matchLabels:
+      app: my-backend-app
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: my-frontend-app
+    ports:
+    - protocol: TCP
+      port: 80 # allowed the destination port ie nginx port:80, not the service or any other sourcePort
+
+# now, traffic is allowed on backend from frontend at port 80 
+# 1. this policy will allow ingress traffic for TCP on port 80 
+# 2. on pods labeled as app:my-backend-pod  <- target
+# 3. but only from labeled app:my-frontend-port <- source
+
+# OR frontend is allowed to send traffic request to backend on port 80 <- this is kind of not true, it is explicitly true only if the eggress is allowed only for front-end and deny for all others
+

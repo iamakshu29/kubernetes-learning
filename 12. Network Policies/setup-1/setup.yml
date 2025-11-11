@@ -1,0 +1,74 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: secure-app
+  
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: frontend-pod
+  namespace: secure-app
+  labels:
+    app: my-frontend-app
+spec:
+  containers:
+  - name: myapp
+    image: nginx
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "500m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+  namespace: secure-app
+spec:
+  selector:
+    app: my-frontend-app
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-pod
+  namespace: secure-app
+  labels:
+    app: my-backend-app
+spec:
+  containers:
+  - name: myapp
+    image: nginx
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "500m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+    ports:
+      - containerPort: 80
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: secure-app
+spec:
+  selector:
+    app: my-backend-app
+  ports:
+  - port: 81
+    targetPort: 80

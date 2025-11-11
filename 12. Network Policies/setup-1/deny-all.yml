@@ -1,0 +1,15 @@
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: deny-all
+  namespace: secure-app
+spec:
+  podSelector: {} # targets all pods
+  policyTypes:
+  - Ingress
+
+# it will denies all incoming traffic, if we try to curl backend from frontend-pod or vice-versa, we will get connection error
+# kubectl exec -it pod/frontend-pod -n secure-app -- curl backend-service:81
+
+# but if we curl google.com, it will work as ingress is blocked only not egress
+# kubectl exec -it pod/frontend-pod -n secure-app -- curl google.com

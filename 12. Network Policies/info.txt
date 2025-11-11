@@ -1,0 +1,46 @@
+Your cluster has a CNI plugin that supports Network Policies For example calico, Weave or Cilium.
+>> minikube start --cni=calico
+
+Network Policies in K8s are a way to control the communication between pods and/or namespaces. 
+They act as a firewall for your pods, allowing you to specify which pods can communicate with each other and which cannot.
+network communication between Pods is open by default, so without Network Policies, all pods can communicate with each other.
+We need a way to control "who can talk to whom." due to security and compliance requirements.
+
+With Network Policies, we can:
+1. Allow only specific Pods to communicate with each other.
+2. Restrict traffic based on Pod labels, namespaces, and ports.
+3. Secure sensitive services like databases.
+4. Build "Zero Trust" networking inside the cluster.
+
+Key Concepts:
+1. Pod Selector: A label selector that determines which pods the policy applies to.
+2. Ingress Rules: Define the incoming traffic that is allowed to reach the selected pods.
+3. Egress Rules: Define the outgoing traffic that is allowed from the selected pods.
+4. Policy Types: Specify whether the policy applies to ingress, egress, or both.
+
+Creating a Network Policy:
+To create a Network Policy, you typically define it in a YAML file and apply it using kubectl.
+
+in Frontend-pod, run the following command to test connectivity to backend-service on port 81:
+>> kubectl exec -n secure-app -it frontend-pod -- curl backend-service:81
+
+You can think of it like this:
+Ingress = who can talk to me = inbound
+Egress = who I can talk to = outbound
+Both directions are evaluated independently.
+
+Points to Note:
+-Network Policy is "allow only" once applied. Everything else is denied by default.
+-Policy enforcement depends on the CNI plugin. Make sure your CNI supports it.
+-Egress rules are critical to prevent Pods from talking to the internet.
+-Use labels carefully. Policies depend heavily on labels.
+
+Best Practices for Network Policies:
+-Apply "default deny all ingress" and "default deny all egress" first.
+-Allow traffic explicitly between required services.
+-Use namespaces to further isolate environments (dev, staging, prod).
+-Test policies carefully before rolling out to production.
+-Monitor traffic to identify missing or redundant policies.
+
+Conclusion
+By using Network Policies, we add a strong layer of security to our Kubernetes applications.
