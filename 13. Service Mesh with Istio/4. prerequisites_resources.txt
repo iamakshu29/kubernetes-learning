@@ -1,0 +1,48 @@
+In this file Prerequisites for the features of Service Mesh are mentioned
+
+a. Canary Deployment
+b. For Enabling mTLS (Mutual TLS)
+c. For Fault Injection
+d. Traffic Mirroring
+
+=============================================================================================
+
+a. For Canary Deployment
+Goal: Gradually shift traffic between two versions (e.g., v1 → v2).
+
+Additional Istio resources required:
+1. DestinationRule
+which Defines subsets (e.g., v1, v2) based on pod labels.
+
+2. VirtualService <- this is Canary Deployment
+Routes traffic between subsets, often by percentage.
+
+-----------------------------------------------------------------------------------------------
+
+b. For Enabling mTLS (Mutual TLS)
+Goal: Secure in-mesh traffic via encrypted and authenticated connections.
+
+Additional Istio resources/config:
+1. PeerAuthentication — controls mTLS mode per namespace/workload.
+2. DestinationRule — clients need to match mTLS mode.
+3. Istio Control Plane configuration — Ensure mesh-level PeerAuthentication or MeshConfig has mTLS enabled.
+
+-----------------------------------------------------------------------------------------------
+
+c. For Fault Injection
+Goal: Test resilience by introducing delays or errors.
+
+Additional Istio resources required:
+1. VirtualService — defines fault rules for specific routes.
+Optional: DestinationRule if subsets are involved.
+
+-----------------------------------------------------------------------------------------------
+
+d. Traffic Mirroring
+Goal: Duplicate live traffic to another version/environment for testing without impacting users.
+
+Additional Istio resources required:
+1. VirtualService — mirror live traffic to a different subset or service.
+2. DestinationRule — defines subsets (v1, v2).
+
+-----------------------------------------------------------------------------------------------

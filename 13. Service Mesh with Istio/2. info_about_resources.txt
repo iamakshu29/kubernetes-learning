@@ -1,0 +1,81 @@
+## In this file, below are the explaination of new resources that are used while using Service Mesh for communication of microservices - securely, reliably and observably without changing application code.
+
+==========================================================================================
+
+1. DestinationRule
+DestinationRule is a resource used by Istio (not native Kubernetes) to define policies that apply to traffic after routing has occurred.
+It specifies how traffic to a particular service (destination) should be handled once it has been routed.
+
+It works together with a VirtualService:
+- VirtualService: controls where traffic is routed (e.g., canary, A/B testing).
+- DestinationRule: controls how traffic is handled after routing (e.g., load balancing, TLS, retries).
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+2. Virtual Service:
+A VirtualService is an Istio traffic management resource that defines how network traffic is routed to a Kubernetes service (or services) inside the service mesh.
+It’s called “virtual” because it doesn’t create a new real service — it defines routing rules on top of an existing service.
+
+- Why It Exists:
+Kubernetes’ native Service object can only do simple round-robin load balancing.
+A VirtualService extends that by allowing fine-grained, policy-based routing.
+
+Key Capabilities
+- Routing Rules:	
+Route traffic based on URI path, headers, or other request attributes
+
+- Traffic Splitting / Weighting:	
+Distribute requests across multiple versions of a service (for canary or blue/green)
+
+- Fault Injection:	
+Intentionally delay or abort requests to test resilience
+
+- Retries & Timeouts:	
+Add retry logic and request timeout settings
+
+- Redirects & Rewrites:	
+Redirect or rewrite URLs before forwarding
+
+- Ingress Control:
+When used with a Gateway, controls traffic coming from outside the cluster.
+
+- Traffic Mirroring:
+It allows you to send a copy of live traffic from a production service to another service (the mirror target), without affecting the original request/response flow.
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+3. PeerAuthentication
+In Kubernetes, the PeerAuthentication resource is a custom resource definition (CRD) introduced by Istio (not native Kubernetes) to control how workloads authenticate traffic at the peer level — that is, mTLS (mutual TLS) between services inside the mesh.
+It defines what kind of authentication (e.g., mTLS or plaintext) should be used by workloads when receiving traffic.
+
+- DISABLE:
+No mutual TLS. All traffic accepted as plaintext.
+
+- PERMISSIVE:
+Accepts both mTLS and plaintext traffic. Useful during migration.
+
+- STRICT:
+Only mTLS traffic is accepted; plaintext is rejected.
+
+- Interaction with DestinationRule:
+PeerAuthentication configures how the server side expects mTLS connections.
+DestinationRule configures how the client side sends traffic (e.g., which TLS mode to use).
+
+Both must align; otherwise, traffic fails (e.g., STRICT on server but plaintext on client causes failure).
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+4. AuthorizationPolicy
+The AuthorizationPolicy resource in Istio (not native Kubernetes) defines fine-grained access control for workloads inside the mesh.
+It controls who can access what, under which conditions, at namespace, workload, or mesh scope.
+
+- Purpose:
+AuthorizationPolicy enforces RBAC-like rules for service-to-service or end-user access.
+It evaluates HTTP/TCP traffic after authentication (mTLS or JWT) and decides whether to allow or deny the request.
+
+- Essentially:
+PeerAuthentication handles how workloads authenticate each other.
+AuthorizationPolicy defines what they’re allowed to do once authenticated.
+
+---------------------------------------------------------------------------------------------------------------------------------------
+

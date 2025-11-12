@@ -1,0 +1,74 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: reviews
+spec:
+  hosts:
+    - reviews 
+  http:
+    - route:
+        - destination:
+            host: reviews # serviceName and here the host means where the request goes or which service the request routes to.
+            subset: v1
+          weight: 75
+        - destination:
+            host: reviews
+            subset: v2
+          weight: 25
+#  Now, 75% of the traffic goes to reviews:v1, and 25% goes to reviews:v2.
+
+
+# 1. When match.uri is not needed
+# If all requests to that VirtualService should follow the same rule (e.g., same subset weights or same destination), you omit the match block entirely.
+# like the above example as — it matches all requests for the reviews service.
+# No match condition is required.
+
+# 2. When match.uri is required or useful
+# If you have different routing logic for different request paths, headers, or methods — then match becomes essential.
+# Example — path-based routing at a gateway:
+
+# http:
+# - match:
+#   - uri:
+#       prefix: /login
+#   route:
+#   - destination:
+#       host: auth-service
+# - match:
+#   - uri:
+#       prefix: /api
+#   route:
+#   - destination:
+#       host: backend
+# - route:   # fallback (no match)
+#   - destination:
+#       host: frontend
+# Here, without match.uri, you couldn’t separate /login, /api, and / traffic.
+
+# If there’s only one destination or one routing pattern → skip it.
+# If multiple destinations or conditions exist → include it.
+
+# --------------------------
+
+# spec:
+#   hosts:
+#     - reviews 1. / bookinfo.example.com (if gateway is there) 2. / * 3.
+
+# 1.
+# if there is no gatewat it means, traffic happens between services inside the cluster. (internal mesh routing)
+# pec.hosts matches the Kubernetes Service DNS name, not an external domain.
+# Internally, that DNS resolves to reviews.default.svc.cluster.local.
+
+# 2. 
+# if there is any gateway for external traffic which comes from outside the mesh or a browser
+# spec.hosts matches the HTTP Host header — i.e., the domain name the user is calling. (like bookinfo.example.com)
+
+# 3.
+# Match all hosts (useful in demo setups or single-service clusters).
+
+# 4. or can be multiple-entries
+# host:
+# - app.example.com
+# - api.example.com
+
+# Conclusion - spec.hosts act like a domain name that determines which requests the VirtualService applies to.

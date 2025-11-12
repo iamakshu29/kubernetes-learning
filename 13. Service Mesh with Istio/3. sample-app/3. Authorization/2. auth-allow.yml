@@ -1,0 +1,14 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-productpage
+  namespace: default
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/default/sa/productpage"]
+# with this rule, we'll allow traffic only from specific services.
+# This rule restricts unauthorized access and follows the zero-trust security model, ensuring that only approved services can talk to each other within the Istio mesh.
+# sa -> serviceAccount

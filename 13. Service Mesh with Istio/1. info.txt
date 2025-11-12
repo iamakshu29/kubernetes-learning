@@ -1,0 +1,57 @@
+What is Istio?
+It is an open-source service mesh that helps manage microservices communication within a K8s cluster.
+It abstracts away complex networking logic, making it easier to deploy and scale microservices while ensuring security.
+
+Features:
+Traffic mgmt: Route Traffic with features like load balancing, canary releases, retries and failover.
+Security: Strong authentication, Mutual TLS, authorization and fine grained access control.
+Observability: Gain insights with tracing, monitoring and logging using tools like Prometheus, Grafana and Jaeger.
+Policy Enforcement: Define and enforce policies for rate limiting, access control and quotas.
+
+To Install Istio on local machine first:
+>> curl -L https://istio.io/downloadIstio | sh -
+>> cd istio-*/
+>> export PATH=$PWD/bin:$PATH
+
+To verify
+>> istioctl version
+
+Install Istio in a K8s Cluster:
+>> istioctl install --set profile=demo -y
+
+What the difference between above commands?
+The first command downloads and installs Istio on your local machine, adding the Istio CLI tools to your PATH for easy access.
+The second command installs Istio into your Kubernetes cluster using the demo profile, which is a pre-configured setup suitable for learning and experimentation.
+
+Enable automatic sidecar injection for a namespace: It configures the specified namespace to automatically inject the Istio sidecar proxy into pods when they are created.
+>> kubectl label namespace <namespace> istio-injection=enabled
+
+To verify the label:
+>> kubectl get namespace -L istio-injection
+
+How to do a manual sidecar injection?
+You can manually inject the Istio sidecar proxy into your application pods using the istioctl command.
+This command modifies your application deployment file to include the Istio sidecar proxy configuration.
+>> istioctl kube-inject -f <your-application-deployment-file>.yaml
+
+Then apply the modified file:
+>> kubectl apply -f <modified-application-deployment-file>.yaml
+This approach is useful when you want to have more control over which pods receive the sidecar proxy or when automatic injection is not feasible.
+
+To verify if the sidecar proxy is injected:
+>> kubectl get pods -n <namespace>
+You should see two containers running for each pod: your application container and the Istio sidecar proxy container.
+
+To uninstall Istio from the cluster:
+>> istioctl uninstall --purge -y
+
+To verify the uninstallation:
+>> kubectl get namespace istio-system
+
+
+Conclusion:
+Istio provides a powerful and flexible way to manage microservices in a Kubernetes environment. 
+By abstracting complex networking tasks, Istio enables seamless traffic management, security enforcement, and policy control without modifying application code.
+
+In this guide, we explored Istios key features, from installation to advanced traffic control, security policies, and fault injection techniques. 
+With traffic mirroring, canary deployments, rate limiting, and mutual TLS encryption, Istio enhances the resilience, security, and efficiency of microservices at scale.

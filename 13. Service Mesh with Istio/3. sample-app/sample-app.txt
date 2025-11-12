@@ -1,0 +1,67 @@
+Enable automatic sidecar injection
+>> kubectl label namespace default istio-injection=enabled
+
+To verify the label:
+>> kubectl get namespace -L istio-injection
+
+Deploying an Bookinfo Sample application with Istio (links are nothing just yaml files)
+>> kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/bookinfo/platform/kube/bookinfo.yaml
+
+Expose the application using ingressgateway
+>> kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/bookinfo/networking/bookinfo-gateway.yaml
+
+verify the gateway is created
+>> kubectl get gateway
+
+Retrieve the external IP to access the application OR use port-forward if ext-ip is pending:
+>> kubectl get svc istio-ingressgateway -n istio-system
+>> kubectl port-forward deploy/productpage-v1 -n default 80:9080 --address=0.0.0.0
+
+-----------------------------------------------------------------------------------
+1. Traffic Management between services with Istio
+Canary Deployment: We can gradually shift the traffic to a new version of a microservice.
+
+Apply Destination Rule:
+>> kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.20/samples/bookinfo/networking/destination-rule-all.yaml
+
+Now, we will modify traffic routing rules by creating virtual-service.yml
+>> kubectl apply -f virtual-service.yml
+#  Now, 75% of the traffic goes to reviews:v1, and 25% goes to reviews:v2.
+
+-----------------------------------------------------------------------------------
+2. Securing Communication with Istio
+Enable Mutual TLS (mTLS) - Istio can enforce mutual TLS (mTLS) to encrypt all service-to-service communication.
+
+Now, Create a new file mtls-policy.yml for encryption
+>> kubectl apply -f mtls-policy.yml
+# Now, all internal traffic is encrypted automatically.
+
+-----------------------------------------------------------------------------------
+3. Implement Authorization Policies
+
+To limit access between services, we can deny all traffic by default by creating a file auth-policy.yml
+>> kubectl apply -f auth-policy.yml
+# Now, we'll allow traffic only from specific services.
+
+Now, we'll allow traffic only from specific services by creating a file named auth-allow.yml
+>> kubectl apply -f auth-allow.yml
+# This rule restricts unauthorized access and follows the zero-trust security model, 
+ensuring that only approved services can talk to each other within the Istio mesh.
+
+-----------------------------------------------------------------------------------
+4. Istio Fault Injection (Resilience Testing)
+Fault injection helps simulate failures to test application resilience. We can introduce artificial delays or errors to observe how the system handles them.
+
+Creating the Fault Injection Rule using fault-injection.yml
+>> kubectl apply -f fault-injection.yml
+# With this rule, 50% of requests to the reviews service will experience a 5-second delay. 
+This helps test how your application handles latency and resilience under failure conditions.
+
+-----------------------------------------------------------------------------------
+5. Istio Traffic Mirroring (Shadow Traffic)
+Traffic mirroring allows sending a copy of live traffic to a new service version without impacting production users.
+
+Creating the Traffic Mirroring Rule using traffic-mirroring.yml
+>> kubectl apply -f traffic-mirroring.yml
+# Now, all traffic that goes to reviews v1 will also be mirrored to reviews v2 without affecting the user experience. 
+This allows testing the new version with real-world traffic before fully switching over.
