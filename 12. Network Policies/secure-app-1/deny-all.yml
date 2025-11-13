@@ -11,5 +11,5 @@ spec:
 # it will denies all incoming traffic, if we try to curl backend from frontend-pod or vice-versa, we will get connection error
 # kubectl exec -it pod/frontend-pod -n secure-app -- curl backend-service:81
 
-# but if we curl google.com, it will work as ingress is blocked only not egress
+# but if we curl google.com, it will work as ingress is blocked only not egress and that too on pods not for any other apps
 # kubectl exec -it pod/frontend-pod -n secure-app -- curl google.com
