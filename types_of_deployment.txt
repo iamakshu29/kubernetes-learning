@@ -1,0 +1,141 @@
+Here’s the complete, well-structured summary of all your questions **with their corresponding answers**, organized by topic for clarity and technical reference.
+
+---
+
+## **1. Blue-Green Deployment**
+
+### **Q1:**
+
+At production level, is Blue-Green deployment done simply by switching the labels in the Service from “green” to “blue”?
+*(Regardless of whether that’s handled manually or by Argo.)*
+
+### **A1:**
+
+Not entirely.
+Switching the Service selector label (e.g., `version=blue` → `version=green`) is indeed the **actual traffic-cutover mechanism**, but it’s only **one step** in a production Blue-Green deployment.
+A full Blue-Green process includes:
+
+* Deploying the new (green) environment in parallel.
+* Running health checks and validation.
+* Possibly routing test traffic.
+* **Then** switching the Service label to move production traffic.
+* Monitoring and rolling back quickly if issues arise.
+
+So, the label switch triggers the transition, but the deployment strategy involves much more around it.
+
+---
+
+### **Q2:**
+
+So, are all the validation steps just prerequisites, and the actual traffic switch in Blue-Green deployment is triggered only by changing the Service label?
+
+### **A2:**
+
+Yes — that’s correct.
+All validation, testing, and readiness checks are prerequisites to ensure safety.
+The **actual trigger** that reroutes live traffic is the **Service label change**.
+Whether done manually or through a controller like Argo Rollouts, the label update is what moves traffic from blue → green.
+
+---
+
+## **2. Canary Deployment**
+
+### **Q3:**
+
+In Canary deployment, is the process basically just scaling up the new version’s Pods and scaling the old version down to zero?
+
+### **A3:**
+
+No — that’s not the full picture.
+Canary deployment isn’t defined by scaling Pods; it’s defined by **progressive traffic shifting** between two versions.
+Scaling accompanies it, but it’s not the mechanism that controls user traffic.
+In real production setups, canary rollout requires:
+
+* Running both old and new versions simultaneously.
+* Gradually **adjusting traffic weights** (e.g., 10%, 25%, 50%, etc.) to the new version.
+* Using tools like **Istio**, **NGINX ingress**, or **Argo Rollouts** to handle traffic routing.
+* Monitoring metrics and automatically rolling forward or back.
+
+So: scaling happens as a side effect, not as the defining mechanism.
+
+---
+
+### **Q4:**
+
+How is Canary deployment implemented at production level using Istio?
+*(For example: defining two subsets in a `DestinationRule` and using a `VirtualService` to set weighted traffic.)*
+
+### **A4:**
+
+That’s exactly how it’s done in production.
+With **Istio**, a typical canary rollout involves:
+
+1. **`DestinationRule`** — defines two subsets, e.g., `v1` and `v2`:
+
+   ```yaml
+   subsets:
+     - name: v1
+       labels: { version: v1 }
+     - name: v2
+       labels: { version: v2 }
+   ```
+2. **`VirtualService`** — defines weighted routing between those subsets:
+
+   ```yaml
+   route:
+     - destination: { host: myapp, subset: v1 }
+       weight: 90
+     - destination: { host: myapp, subset: v2 }
+       weight: 10
+   ```
+3. Gradually adjust weights (90→75→50→0) while monitoring.
+4. When stable, promote the new version (100% traffic) and decommission the old one.
+5. Automation (optional): tools like **Argo Rollouts** or **Flagger** can adjust weights automatically, run metric checks, and handle rollbacks.
+
+---
+
+### **Q5:**
+
+So, do we simply edit the `VirtualService` YAML file and adjust the weights gradually until the new version reaches 100% and the old version 0%?
+
+### **A5:**
+
+Yes — that’s the manual version of a canary rollout.
+In essence, you:
+
+1. Deploy the new version (v2).
+2. Gradually edit the `VirtualService` to adjust weights (e.g., 10%, 30%, 50%, 100%).
+3. Observe metrics after each adjustment.
+4. When stable, promote v2 to 100% and set v1 to 0%.
+5. Clean up the old version afterward.
+
+In production environments, though, these weight changes are usually automated via **Argo Rollouts** or **Flagger**, which handle gradual progression and rollback automatically based on monitoring data.
+
+---
+
+## **3. A/B Deployment vs. Blue-Green Deployment**
+
+### **Q6:**
+
+Are A/B deployment and Blue-Green deployment the same thing?
+
+### **A6:**
+
+No — they differ in **purpose** and **traffic control method**:
+
+| Aspect                   | **Blue-Green Deployment**             | **A/B Deployment**                                 |
+| ------------------------ | ------------------------------------- | -------------------------------------------------- |
+| **Purpose**              | Zero-downtime release & easy rollback | Experimentation & user behavior comparison         |
+| **Traffic Distribution** | 100% to one version (atomic switch)   | Split between versions (e.g., 50/50 or user-based) |
+| **Routing Basis**        | Environment-level                     | User/request-level                                 |
+| **Duration**             | Short — until verification            | Long — both may run for extended testing           |
+| **Focus**                | Reliability and rollback              | Product metrics, UX, or feature validation         |
+
+So:
+
+* **Blue-Green** → two environments, only one live at a time.
+* **A/B** → both live simultaneously for controlled experimentation.
+
+---
+
+Would you like me to format this into a clean Markdown or Confluence-ready document (e.g., “Deployment Strategies Q&A Reference”)?
