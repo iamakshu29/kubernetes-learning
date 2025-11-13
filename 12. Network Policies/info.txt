@@ -21,8 +21,16 @@ Key Concepts:
 Creating a Network Policy:
 To create a Network Policy, you typically define it in a YAML file and apply it using kubectl.
 
+secure-app-1
+1. Create frontend and backend pod with nginx service in it for testing the connections when network policy are applied.
+
 in Frontend-pod, run the following command to test connectivity to backend-service on port 81:
 >> kubectl exec -n secure-app -it frontend-pod -- curl backend-service:81
+O/P
+able to get the homepage of jenkins through backend-pod
+
+Now create a deny-all.yml and check again <-  it will now failed to connect.
+Now Create allow-frontend-to-backend for allowing specific connection and check again <- it will again able to get response from backeendpod
 
 You can think of it like this:
 Ingress = who can talk to me = inbound
