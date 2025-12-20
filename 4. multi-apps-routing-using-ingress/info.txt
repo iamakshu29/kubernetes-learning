@@ -1,0 +1,19 @@
+If Ingress exists, it is the only supported entry point for users.
+Services are never user-facing.
+
+Client
+  ↓
+Ingress IP / DNS
+  ↓
+Ingress Controller (NGINX)
+  ↓
+Service (ClusterIP)
+  ↓
+Pods
+
+Multiple applications can be hosted behind a single Ingress resource by defining different rules based on hostnames or paths.
+
+When we use ingress we do not expose services using NodePort or LoadBalancer types. Instead, we use ClusterIP services that are only accessible within the cluster. 
+The Ingress controller handles all incoming traffic and routes it to the appropriate service based on the defined rules.
+
+ie we expose ingress, not services.

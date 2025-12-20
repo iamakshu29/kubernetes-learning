@@ -1,0 +1,11 @@
+kubectl port-forward -n recreate-ns service/myapp-service 80:80 --address=0.0.0.0
+
+kubectl get pods -n recreate-ns -w
+
+# First apply the deployment and then watch it with above command.
+# Now update the image in yaml file and re-apply it.
+
+# Recreate Deployment Strategy
+    # Observe that all the pods will be terminated first and then only after that new pods will be created.
+    # This is Recreate deployment strategy. which is useful when your app does not support multiple versions running at same time.
+    # but this is not recommended for production env as it leads to downtime.

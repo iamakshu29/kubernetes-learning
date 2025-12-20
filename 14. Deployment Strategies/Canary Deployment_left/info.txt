@@ -1,0 +1,20 @@
+After apply all manifest files
+first do the port-forwarding of inggress controller service not the pod-service
+
+>> kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 8081:80 --address=0.0.0.0
+
+then run the below command, what it does is, it sends 5 requests to ingress controller and check the response ḥeader to see which version of app is getting served.
+it maps the localhost to example.com host header so that ingress rules can be matched.. 
+
+>> for i in {1..5}; do   curl -s -H "Host: example.com" http://localhost:8081 | grep -E "nginx|Apache"; done
+
+
+
+Start increasing the traffic to new version by changing the canary weight in ingress file. and start with 1 replica of new version.
+then slowly increase the weight to 10,20,30 and so on till 100. and start increasing the replica count of new version and decreasing replica count of old version.
+
+BUT replica count is just for load balancing purpose for single version. like memory and multiple requests handling.
+# Actual traffic splitting is done by ingress controller based on the weight assigned to each version.# So even if you have 1 replica of new version and weight of 50%, still 50% of traffic will go to new version.
+Canary is independent of replica count.
+
+In canary deployments, traffic moves first; replicas follow only when needed.

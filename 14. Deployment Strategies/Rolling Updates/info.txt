@@ -1,0 +1,35 @@
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: # specify the rolling update parameters.
+      maxUnavailable: 25% # can be a number or percentage.
+      maxSurge: 25% # can be a number or percentage.
+
+NOTE: 
+It is recommended to use Readiness and Liveness probes to check the health of the pods while doing rolling updates.
+
+
+Explaination of above code:
+# The above code snippet is part of k8 deployment yaml file which defines the RollingUpdate deployment strategy.
+# type: RollingUpdate indicate that the deployment will use rolling updates to update the new version of the app.
+# maxUnavailable: 25% indicates that during the update process, a maximum of 25% of the desired number of pods can be unavailable.
+# maxSurge: 25% indicates that during the update process, a maximum of 25% more than the desired number of pods can be created.
+# This ensure that there is always some pods available to server the traffic while version update is in progress.
+
+# the 25% is default value. ie if maxUnavailable and maxSurge is not specified, then bu default it will be 25%.
+# we can change the value as per our requirement.
+
+
+kubectl port-forward -n rolling-update-ns service/myapp-service 80:80 --address=0.0.0.0
+
+kubectl get pods -n rolling-update-ns -w
+
+# First apply the deployment and then watch it with above command.
+# Now update the image in yaml file and re-apply it. 
+# Use an image which gives error like wrong name or tag to see that even if the new image gives error but still the old pods are running and serving the traffic.
+
+# RollingUpdate Deployment Strategy
+    # Observe that as soon as the new pod is in running state, then only the old pod is terminated while keeping the replicas count same.
+    # This is Rolling Update deployment strategy. which is default in kubernetes. 
+    # Useful for zero downtime deployments and used in production env.

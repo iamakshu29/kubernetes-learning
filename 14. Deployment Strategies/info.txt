@@ -1,0 +1,40 @@
+Most Important things is to add as per different deployment strategies in the deployment yaml file.
+
+spec.strategy.type: Recreate
+
+
+spec.strategy.type: RollingUpdate
+spec.strategy.rollingUpdate:
+    maxUnavailable: 25%
+    maxSurge: 25%
+
+
+# For Argo Rollouts (CRD) only not for standard K8 deployment
+
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+
+
+spec.strategy.type: canary
+spec.strategy.canary:
+    steps:
+    - setWeight: 20
+    - pause: {}
+    - setWeight: 50
+    - pause: {}
+    - setWeight: 100
+    - pause: {}
+
+
+spec.strategy.type:blueGreen
+spec.strategy.blueGreen:
+    activeService: my-app-active
+    previewService: my-app-preview
+    autoPromotionEnabled: true / if false, manual promotion is required
+    prePromotionAnalysis:
+      templates:
+      - templateName: my-analysis-template
+      args:
+      - name: threshold
+        value: "5"
+    

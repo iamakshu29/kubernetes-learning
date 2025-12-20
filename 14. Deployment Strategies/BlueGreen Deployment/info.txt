@@ -1,0 +1,27 @@
+kubectl port-forward -n blue-green-ns service/nginx-service 81:80 --address=0.0.0.0
+kubectl port-forward -n blue-green-ns service/apache-service 91:80 --address=0.0.0.0
+
+change the service selector to switch between blue and green deployments
+
+
+# BlueGreen Deployment Strategy
+Blue is live and Green is idle or newer version.
+To switch traffic from Blue to Green deployment, you need to change the service selector in the Kubernetes service definition.
+For example, if your service is currently pointing to the Blue deployment:
+selector:
+  app: my-app
+  version: blue
+To switch to the Green deployment, you would update the selector to:
+selector:
+  app: my-app
+  version: green
+This change will route all incoming traffic to the Green deployment instead of the Blue deployment.
+
+NOTE 
+
+As we can see for the blue-green Strategy, we need to first create the complete env for new version ie services, deployments....
+Once the new version is verified, we can switch the traffic by changing the service selector in older service to point to new version.
+Once its stable, we can delete the gree-service, older infra except blue-service
+
+think of it as blue is prod and green is staging.
+so once we switch traffic to greeen using prod service, blue infra can be deleted and staging service which has handling green during staging can also be deleted.
