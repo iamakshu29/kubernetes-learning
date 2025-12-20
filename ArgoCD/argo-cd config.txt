@@ -1,0 +1,43 @@
+login argocd-server
+
+# Using UI 
+kubectl port-forward svc/argocd-server -n <namespace> targetPort:sourcePort
+kubectl port-forward svc/argocd-server -n argocd 8081:443
+
+# using CLI
+argocd login <instance_public_ip>:targetPort --username <username> --password <password> --insecure
+argocd login localhost:8081 --username admin --password admin123 --insecure 
+--insecure flag: because we are not using any SSL certs here. We will securely login when do with AWS cloud in EKS through ACM.
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+# Check the clusters connected to ArgoCD
+argocd cluster list
+By default, ArgoCD connects to the same cluster it’s running in (the “in-cluster” context).
+(if token is failed, relogin using argocd cli)
+
+# to add more clusters to ArgoCD
+
+- to get the cluster details
+>> kubectl config get-contexts
+
+- add the cluster to argocd
+argocd cluster add <kube-context-name> --name <name-the-cluster> --insecure
+>> argocd cluster add minikube --name minikube --insecure
+This creates a service account + role binding in that target cluster and stores the credentials in ArgoCD.
+
+------------------------------------------------------------------------------------------------------------------------------------
+
+# Adding a repo to ArgoCD
+# By CLI
+argocd repo add <repo-url> --username <username> --password <password> --insecure-ignore-host-key
+argocd repo add https://github.com/<your-org>/<your-repo>.git --username <user> --password <token>
+
+# By UI
+Go to settings -> repos -> connect repo using ssh/http....
+add the repo url , name, project and creadentials (if private repo)
+
+--> ArgoCD can read manifests or Helm charts directly from your repo.
+
+------------------------------------------------------------------------------------------------------------------------------------
+

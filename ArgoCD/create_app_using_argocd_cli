@@ -1,0 +1,8 @@
+argocd app create apache-app \
+--repo https://github.com/LondheShubham153/argocd-demos.git \
+--path cli_approach/apache \
+--dest-server https://kubernetes.default.svc \
+--dest-namespace default \
+--sync-policy automated \
+--self-heal \
+--auto-prune

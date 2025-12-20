@@ -1,0 +1,51 @@
+# For the ArgoCD installation without using Helm, you can use the following commands:
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+# For the ArgoCD installation using Helm, you can use the following commands:
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+helm install argo-cd argo/argo-cd --namespace argocd --create-namespace
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+
+
+Github Repo :
+https://github.com/LondheShubham153/argocd-in-one-shot.git  <-- important
+https://github.com/LondheShubham153/argocd-demos.git
+
+
+--------------------------------------------------------------------------------------------------------------------
+To install the ArgoCD CLI tool, you can use the following commands:
+# For Linux
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
+
+# For Windows (in CMD as admin)
+curl -sSL -o argocd-windows-amd64.exe https://github.com/argoproj/argo-cd/releases/latest/download/argocd-windows-amd64.exe
+move argocd-windows-amd64.exe C:\Windows\argocd.exe
+
+Common Commands: 
+# Verify installation
+argocd version --client
+
+Login to ArgoCD CLI
+argocd login <instance_public_ip>:8080 --username admin --password <initial_password> --insecure
+
+Get user info
+argocd account get-user-info
+
+
+List the apps
+argocd app list
+
+Delete the apps
+argocd app delete <app-name>
+
+Commands
+prune
+sync
+auto-sync
+auto prune
+argo cd app get <myapp>
+rollback

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1 
+kind: Application               
+metadata:                                      
+  name: root-app          # Root App name
+  namespace: argocd             # Must exist in ArgoCD namespace
+spec:
+  project: default        
+  source:
+    repoURL: https://github.com/iamakshu29/argocd-demos.git  
+    targetRevision: main        # Branch to track
+    path: app_of_apps/apps     # Path where child app manifest are present
+  destination:
+    server: https://kubernetes.default.svc  # Target cluster, run `argocd cluster list` to see
+    namespace: argocd          
+  syncPolicy:                    
+    automated:                   
+      prune: true                 
+      selfHeal: true              
+    syncOptions:                 
+      - CreateNamespace=true      

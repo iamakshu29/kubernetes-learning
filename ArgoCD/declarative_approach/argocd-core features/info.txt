@@ -1,0 +1,6 @@
+- Project - we can add multiple application is same project and give each project different permissions accordingly.
+- App Of Apps - source contain the location where many manifest files are present..so that will deploy all the manifest files in that location
+- Multi Cluster Mgmt - To run different apps on different clusters
+    >> just change the server in Application.yml
+- ApplicationSet - 1 app which contains the configuration of many other apps, so 1 manifest file which contains info for other apps like gitrepo, cluster, and path.
+

@@ -1,0 +1,12 @@
+The declarative approache means having a manifest file
+which containes all the configuration for deploying an app on argo-cd
+For example:-
+1. Argo CD App name
+2. Repo name
+3. Source
+4. Cluster-name
+5. destination
+and this file also be present in git.
+
+
+https://github.com/LondheShubham153/argocd-demos/blob/main/declarative_approach/online_shop/online_shop_app.yml

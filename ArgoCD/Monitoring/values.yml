@@ -1,0 +1,11 @@
+server:
+  metrics:
+    enabled: true
+
+repoServer:
+  metrics:
+    enabled: true
+
+controller:
+  metrics:
+    enabled: true

@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1 
+kind: ApplicationSet               
+metadata:                                      
+  name: demo-list         # Root App name
+  namespace: argocd             # Must exist in ArgoCD namespace
+spec:
+  generators:
+    - list:
+        elements:
+          - app: nginx
+            path: ui_approach/nginx
+          - app: online-shop
+            path: multicluster/online-shop
+          - app: chaiapp
+            path: applicationset/chai-app
+  template:
+    metadata:
+      name: '{{app}}-list'  
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/iamakshu29/argocd-demos.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+
+# argocd appset delete argocd/demo-list

@@ -1,0 +1,35 @@
+when we do 
+kubectl get svc -n argocd 
+we didn't find and metrics related services.
+As there are not enabled and installed by default, we have to make them so.
+
+If you install Argo CD using the argo/argo-cd Helm chart, you don’t automatically get the metrics services unless you explicitly enable them.
+1. Metrics are disabled by default
+The Argo CD Helm chart ships with metrics support off unless you enable:
+Argo CD API server metrics
+Repo server metrics
+Application controller metrics
+Redis metrics (optional)
+
+2. Check your current chart values
+>> helm show values argo/argo-cd | grep -A5 metrics
+
+If these remain false, you won’t see services like:
+argocd-server-metrics
+argocd-repo-server-metrics
+argocd-application-controller-metrics
+argocd-redis-metrics
+
+What we need to do is create a value.yml with
+enabled: true and then upgrade as well as install the helm chart
+>> helm upgrade --install argocd argo/argo-cd -n argocd -f values.yml
+
+Now we can see metrics related services present in argocd
+>> kubectl get svc -n argocd | grep metrics
+
+1. prometheus
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prom-v1 prometheus-community/kube-prometheus-stack -n monitoring --create-namespace
+
+0pclqchf5SG9ZIr0Jevh2dQcEBY0V0wIogRdEeOG
