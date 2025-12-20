@@ -8,7 +8,10 @@ it maps the localhost to example.com host header so that ingress rules can be ma
 
 >> for i in {1..5}; do   curl -s -H "Host: example.com" http://localhost:8081 | grep -E "nginx|Apache"; done
 
-
+if we check localhost:8081 we didnot get anything because host mapping is done in above loop, if we need to see the canary version shifting on localhost we need to :
+1. map example.com to localhost in /etc/hosts
+OR
+2. remove host attribute from both ingress then it will match all host including localhost:8081 
 
 Start increasing the traffic to new version by changing the canary weight in ingress file. and start with 1 replica of new version.
 then slowly increase the weight to 10,20,30 and so on till 100. and start increasing the replica count of new version and decreasing replica count of old version.
