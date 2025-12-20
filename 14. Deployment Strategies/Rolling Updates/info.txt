@@ -17,7 +17,7 @@ Explaination of above code:
 # maxSurge: 25% indicates that during the update process, a maximum of 25% more than the desired number of pods can be created.
 # This ensure that there is always some pods available to server the traffic while version update is in progress.
 
-# the 25% is default value. ie if maxUnavailable and maxSurge is not specified, then bu default it will be 25%.
+# the 25% is default value. ie if maxUnavailable and maxSurge is not specified, then by default it will be 25%.
 # we can change the value as per our requirement.
 
 
